@@ -9,6 +9,7 @@ public class Tile
     public float x, y;
     public bool state;
     public bool nextState;
+    public bool nextnextState;
     List<Tile> neighbours;
     public bool shifted;
     public Vector3 currentPosition;
@@ -27,6 +28,10 @@ public class Tile
         {
             nextState = false;
             targetPosition = new Vector3(x, -1, y);
+        }
+        if(x==0 && y == 0)
+        {
+            nextState = false;
         }
         state = nextState;
         currentPosition = targetPosition;
@@ -65,6 +70,37 @@ public class Tile
             if(liveCount == 3)
             {
                 nextState = true;
+            }
+        }
+    }
+
+    public void calcNextNextState()
+    {
+        int liveCount = 0;
+        for (int i = 0; i < neighbours.Count; i++)
+        {
+            if (neighbours[i].nextState == true)
+            {
+                liveCount++;
+            }
+        }
+
+        if (this.nextState == true)
+        {
+            if (liveCount == 2 || liveCount == 3)
+            {
+                this.nextnextState = true;
+            }
+            else
+            {
+                this.nextnextState = false;
+            }
+        }
+        else
+        {
+            if (liveCount == 3)
+            {
+                nextnextState = true;
             }
         }
     }

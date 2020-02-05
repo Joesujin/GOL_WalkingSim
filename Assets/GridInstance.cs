@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class GridInstance : MonoBehaviour
 {
+    public GameObject goal;
     public GameObject Block;
     public Material Nextstate;
     public Tile[,] tiles;
-    public int numX = 10;
-    public int numY = 10;
+    public int numX;
+    public int numY;
     public float scl = 1;
     public bool isChanging;
 
@@ -16,37 +17,18 @@ public class GridInstance : MonoBehaviour
     void Start()
     {
         restart();
-        StartCoroutine(ChangeTiles());
+        goal.GetComponent<Transform>().transform.position = new Vector3(numX*scl, 0, numY*scl);
+        //StartCoroutine(ChangeTiles());
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown("space"))
+        {
+            ShiftState();
+        }
 
-        //for (int i = 0; i < numX; i++)
-        //{
-        //    for (int j = 0; j < numY; j++)
-        //    {
-        //        if (tiles[i, j].shifted)
-        //        {
-        //            tiles[i, j].currentPosition = tiles[i, j].targetPosition;
-                    
-        //        }
-        //        else
-        //        {
-        //            for (float b = 0; b < 100; b++)
-        //            {
-        //                tiles[i, j].block.GetComponent<Transform>().transform.position = Vector3.Lerp(new Vector3(tiles[i, j].x * scl, -1f * scl, tiles[i, j].y * scl), new Vector3(tiles[i, j].x * scl, 0f, tiles[i, j].y * scl), b * Time.deltaTime);
-        //            }
-        //        }
-
-        //        if (tiles[i, j].currentPosition == tiles[i, j].targetPosition)
-        //        {
-        //            tiles[i, j].shifted = true;
-        //        }
-
-        //    }
-        //}
     }
 
     public void restart()
@@ -105,10 +87,81 @@ public class GridInstance : MonoBehaviour
             {
                 tiles[i, j].block = Instantiate(Block, tiles[i,j].currentPosition*scl, Quaternion.identity);
             }
+        }
 
+        for (int i = 0; i < numX; i++)
+        {
+            for (int j = 0; j < numY; j++)
+            {
+                tiles[i, j].calcNextNextState();
+
+                if (tiles[i, j].nextnextState)
+                {
+                    tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.red;
+                }
+                else
+                {
+                    tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.white;
+                }
+            }
         }
     }
 
+    public void ShiftState()
+    {
+        for (int i = 0; i < numX; i++)
+        {
+            for (int j = 0; j < numY; j++)
+            {
+                tiles[i, j].calcNextState();
+            }
+        }
+
+        for (int i = 0; i < numX; i++)
+        {
+            for (int j = 0; j < numY; j++)
+            {
+                tiles[i, j].calcNextNextState();
+            }
+        }
+
+
+        for (int i = 0; i < numX; i++)
+        {
+            for (int j = 0; j < numY; j++)
+            {
+                tiles[i, j].StateShift();
+
+                if (tiles[i, j].nextnextState)
+                {
+                    tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.red;
+                }
+                else
+                {
+                    tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.white;
+                }
+
+                if (tiles[i, j].state)
+                {
+                    //tiles[i, j].block.GetComponent<Transform>().transform.position = new Vector3(tiles[i, j].x * scl, 0f, tiles[i, j].y * scl);
+
+                    moveBlocks(i, j, true);
+                }
+                else
+                {
+                    //tiles[i, j].block.GetComponent<Transform>().transform.position = new Vector3(tiles[i, j].x * scl, -1f*scl, tiles[i, j].y * scl);
+
+                    moveBlocks(i, j, false);
+                }
+
+
+
+            }
+        }
+    }
+
+
+    /*--------------------------------------------------------- Automatic change of state
     IEnumerator ChangeTiles()
     {
         while(gameObject)
@@ -118,8 +171,14 @@ public class GridInstance : MonoBehaviour
                 for (int j = 0; j < numY; j++)
                 {
                     tiles[i, j].calcNextState();
+                }
+            }
 
-
+            for (int i = 0; i < numX; i++)
+            {
+                for (int j = 0; j < numY; j++)
+                {
+                    tiles[i, j].calcNextNextState();
                 }
             }
 
@@ -130,7 +189,7 @@ public class GridInstance : MonoBehaviour
                 {
                     tiles[i, j].StateShift();
 
-                    if ((tiles[i, j].nextState && tiles[i, j].state) )
+                    if (tiles[i,j].nextnextState)
                     {
                         tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.red;
                     }
@@ -162,23 +221,23 @@ public class GridInstance : MonoBehaviour
             yield return new WaitForSeconds(3f);
         }
     }
-
+    */
 
     public void moveBlocks(int i, int j, bool dir)
     {
         if (dir)
         {
-            for (float b = 0; b < 100; b++)
-            {
-                tiles[i, j].block.GetComponent<Transform>().transform.position = Vector3.Lerp(new Vector3(tiles[i, j].x * scl, -1f * scl, tiles[i, j].y * scl), new Vector3(tiles[i, j].x * scl, 0f, tiles[i, j].y * scl), b * Time.deltaTime);
-            }
+            //for (float b = 0; b < 100; b++)
+            //{
+                tiles[i, j].block.GetComponent<Transform>().transform.position = Vector3.Lerp(new Vector3(tiles[i, j].x * scl, -1f * scl, tiles[i, j].y * scl), new Vector3(tiles[i, j].x * scl, 0f, tiles[i, j].y * scl),  Time.time);
+            //}
         }
         else
         {
-            for (float b = 0; b < 100; b++)
-            {
-                tiles[i, j].block.GetComponent<Transform>().transform.position = Vector3.Lerp(new Vector3(tiles[i, j].x * scl, 0f, tiles[i, j].y * scl), new Vector3(tiles[i, j].x * scl, -1f * scl, tiles[i, j].y * scl), b * Time.deltaTime);
-            }
+            //for (float b = 0; b < 100; b++)
+            //{
+                tiles[i, j].block.GetComponent<Transform>().transform.position = Vector3.Lerp(new Vector3(tiles[i, j].x * scl, 0f, tiles[i, j].y * scl), new Vector3(tiles[i, j].x * scl, -1f * scl, tiles[i, j].y * scl),  Time.time);
+            //}
         }
     }
 
