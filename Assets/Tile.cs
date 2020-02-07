@@ -29,7 +29,7 @@ public class Tile
             nextState = false;
             targetPosition = new Vector3(x, -1, y);
         }
-        if(x==0 && y == 0)
+        if(x<5 && y <5)
         {
             nextState = false;
         }

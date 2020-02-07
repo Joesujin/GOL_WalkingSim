@@ -20,7 +20,7 @@ public class playerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameObject.transform.position = new Vector3(0, 2, 0);
+        gameObject.transform.position = new Vector3(0, 10, 0);
         
     }
 

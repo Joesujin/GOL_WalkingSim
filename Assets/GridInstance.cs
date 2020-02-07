@@ -31,6 +31,45 @@ public class GridInstance : MonoBehaviour
 
     }
 
+    private void OnEnable()
+    {
+        Events.findTile += ChangeTileState;
+    }
+
+    private void OnDisable()
+    {
+        Events.findTile -= ChangeTileState;
+
+    }
+
+    public void ChangeTileState(Vector3 TargetTilePos)
+    {
+        for (int i = 0; i < numX; i++)
+        {
+            for (int j = 0; j < numY; j++)
+            {
+                if(tiles[i,j].block.transform.position == TargetTilePos)
+                {
+                    tiles[i, j].nextState = !tiles[i, j].nextState;
+
+                    tiles[i, j].calcNextNextState();
+
+                    if (tiles[i, j].nextnextState)
+                    {
+                        tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.red;
+                    }
+                    else
+                    {
+                        tiles[i, j].block.GetComponent<MeshRenderer>().material.color = Color.grey;
+                    }
+                    
+
+                }
+
+            }
+        }
+    }
+
     public void restart()
     {
         tiles = new Tile[numX, numY];
